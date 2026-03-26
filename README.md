@@ -25,7 +25,7 @@ An AI-powered research assistant that uses LangGraph to orchestrate multiple AI 
 
 2. **Download the model**:
    ```bash
-   ollama pull qwen2.5:4b
+   ollama pull qwen3.5:4b
    ```
 
 ### Run the App

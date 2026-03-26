@@ -45,7 +45,7 @@ If you only want to use locally (not deploy):
 
 ```bash
 # Install Ollama from https://ollama.com
-ollama pull qwen2.5:4b
+ollama pull qwen3.5:4b
 ollama serve
 
 # In another terminal:

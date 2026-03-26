@@ -8,7 +8,7 @@ from .exceptions import APIKeyError, SearchError, LLMError
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:4b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 USE_GROQ = os.getenv("USE_GROQ", "false").lower() == "true"
 
