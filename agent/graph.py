@@ -6,7 +6,7 @@ from .nodes import research_agent, analysis_agent, writer_agent, critic_agent
 
 
 def should_continue_revisions(state: AgentState) -> str:
-    if state.get("approved", False):
+    if "approved" in state and state["approved"]:
         return "end"
     if state.get("revision_count", 0) >= 3:
         return "end"

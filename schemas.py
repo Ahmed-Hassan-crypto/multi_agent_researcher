@@ -33,7 +33,7 @@ class ResearchResponse(BaseModel):
 class ApprovalRequest(BaseModel):
     """Request model for approving analysis and continuing to writing."""
 
-    thread_id: str = Field(..., description="Thread ID from previous response")
+    thread_id: str = Field(..., min_length=1, description="Thread ID from previous response")
 
 
 class PDFRequest(BaseModel):
@@ -45,5 +45,5 @@ class PDFRequest(BaseModel):
 class HealthResponse(BaseModel):
     """Response model for health check."""
 
-    status: str
+    status: str = "healthy"
     version: str = "1.0.0"

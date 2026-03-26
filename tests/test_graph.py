@@ -27,10 +27,10 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(result, "end")
 
     def test_should_continue_revisions_default_approved(self):
-        """Test defaults to end when approved not set."""
+        """Test defaults to continue when approved not set."""
         state: AgentState = {"topic": "Test", "revision_count": 0}
         result = should_continue_revisions(state)
-        self.assertEqual(result, "end")
+        self.assertEqual(result, "continue")
 
     def test_graph_compiles(self):
         """Test that the graph compiles without errors."""
@@ -43,8 +43,8 @@ class TestGraphNodesIntegration(unittest.TestCase):
     """Integration tests for graph nodes."""
 
     @patch("agent.nodes.get_tavily_client")
-    @patch("agent.nodes.get_gemini_model")
-    def test_research_to_analysis_flow(self, mock_gemini, mock_tavily):
+    @patch("agent.nodes.get_llm")
+    def test_research_to_analysis_flow(self, mock_llm, mock_tavily):
         """Test research node output flows to analysis node."""
         from agent.nodes import research_agent, analysis_agent
 
@@ -58,7 +58,7 @@ class TestGraphNodesIntegration(unittest.TestCase):
         mock_response = Mock()
         mock_response.content = "# Analysis"
         mock_llm.invoke.return_value = mock_response
-        mock_gemini.return_value = mock_llm
+        mock_llm.return_value = mock_llm
 
         state: AgentState = {"topic": "Test Topic"}
         research_result = research_agent(state)

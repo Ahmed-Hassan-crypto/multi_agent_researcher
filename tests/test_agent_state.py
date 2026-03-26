@@ -76,7 +76,7 @@ class TestNodesWithMocks(unittest.TestCase):
 
         self.assertEqual(result["search_results"], [])
 
-    @patch("agent.nodes.get_gemini_model")
+    @patch("agent.nodes.get_llm")
     def test_analysis_agent_returns_outline(self, mock_get_model):
         """Test analysis agent returns structured outline."""
         from agent.nodes import analysis_agent
@@ -96,7 +96,7 @@ class TestNodesWithMocks(unittest.TestCase):
         self.assertIn("analysis", result)
         self.assertIn("Executive Summary", result["analysis"])
 
-    @patch("agent.nodes.get_gemini_model")
+    @patch("agent.nodes.get_llm")
     def test_writer_agent_returns_draft(self, mock_get_model):
         """Test writer agent returns draft report."""
         from agent.nodes import writer_agent
@@ -118,7 +118,7 @@ class TestNodesWithMocks(unittest.TestCase):
         self.assertIn("draft_report", result)
         self.assertIn("AI Research Report", result["draft_report"])
 
-    @patch("agent.nodes.get_gemini_model")
+    @patch("agent.nodes.get_llm")
     def test_critic_agent_approved(self, mock_get_model):
         """Test critic agent approves good report."""
         from agent.nodes import critic_agent
@@ -134,7 +134,7 @@ class TestNodesWithMocks(unittest.TestCase):
 
         self.assertTrue(result.get("approved", False))
 
-    @patch("agent.nodes.get_gemini_model")
+    @patch("agent.nodes.get_llm")
     def test_critic_agent_not_approved(self, mock_get_model):
         """Test critic agent rejects poor report."""
         from agent.nodes import critic_agent
@@ -151,7 +151,7 @@ class TestNodesWithMocks(unittest.TestCase):
         self.assertFalse(result.get("approved", True))
         self.assertIn("critic_feedback", result)
 
-    @patch("agent.nodes.get_gemini_model")
+    @patch("agent.nodes.get_llm")
     def test_critic_agent_max_revisions(self, mock_get_model):
         """Test critic agent approves after max revisions."""
         from agent.nodes import critic_agent
@@ -172,24 +172,26 @@ class TestNodesErrorHandling(unittest.TestCase):
     """Test error handling in agent nodes."""
 
     def test_research_agent_missing_api_key(self):
-        """Test research agent raises error without API key."""
+        """Test research agent raises SearchError without API key."""
         from agent.nodes import research_agent
+        from agent.exceptions import SearchError
 
         with patch.dict(os.environ, {}, clear=True):
             with patch("agent.nodes.get_tavily_client", side_effect=ValueError("TAVILY_API_KEY not set")):
-                with self.assertRaises(ValueError) as context:
+                with self.assertRaises(SearchError) as context:
                     research_agent({"topic": "Test"})
                 self.assertIn("TAVILY_API_KEY", str(context.exception))
 
-    def test_analysis_agent_missing_api_key(self):
-        """Test analysis agent raises error without API key."""
+    def test_analysis_agent_raises_llm_error_without_api_key(self):
+        """Test analysis agent raises LLMError without API key."""
         from agent.nodes import analysis_agent
+        from agent.exceptions import LLMError
 
         with patch.dict(os.environ, {}, clear=True):
-            with patch("agent.nodes.get_gemini_model", side_effect=ValueError("GEMINI_API_KEY not set")):
-                with self.assertRaises(ValueError) as context:
+            with patch("agent.nodes.get_llm", side_effect=ValueError("GROQ_API_KEY not set")):
+                with self.assertRaises(LLMError) as context:
                     analysis_agent({"topic": "Test", "search_results": []})
-                self.assertIn("GEMINI_API_KEY", str(context.exception))
+                self.assertIn("GROQ_API_KEY", str(context.exception))
 
 
 if __name__ == "__main__":

@@ -182,27 +182,27 @@ def critic_agent(state: AgentState) -> AgentState:
     llm = get_llm()
     
     prompt = f"""You are a critical reviewer. Evaluate this research report on "{topic}" 
-for quality, accuracy, and completeness.
+    for quality, accuracy, and completeness.
 
-Report:
-{draft_report}
+    Report:
+    {draft_report}
 
-Evaluate against these criteria:
-1. Relevance - Does it address the topic comprehensively?
-2. Structure - Is it well-organized with clear sections?
-3. Clarity - Is it written clearly without jargon?
-4. Citations - Are sources properly cited?
-5. Length - Is it substantial (at least 1500 words)?
+    Evaluate against these criteria:
+    1. Relevance - Does it address the topic comprehensively?
+    2. Structure - Is it well-organized with clear sections?
+    3. Clarity - Is it written clearly without jargon?
+    4. Citations - Are sources properly cited?
+    5. Length - Is it substantial (at least 1500 words)?
 
-Provide feedback in this format:
-APPROVED: [true/false]
-FEEDBACK: [Specific suggestions for improvement if not approved]
-"""
+    Provide feedback in this format:
+    APPROVED: [true/false]
+    FEEDBACK: [Specific suggestions for improvement if not approved]
+    """
     
     response = llm.invoke(prompt)
     feedback_text = response.content if hasattr(response, "content") else str(response)
     
-    approved = "APPROVED: true" in feedback_text.upper()  # type: ignore[attr-defined]
+    approved = "APPROVED: TRUE" in feedback_text.upper()
     feedback = feedback_text if not approved else ""
     
     if not approved and revision_count < 3:
@@ -210,7 +210,8 @@ FEEDBACK: [Specific suggestions for improvement if not approved]
             "topic": topic,
             "draft_report": draft_report,
             "critic_feedback": feedback,
-            "revision_count": revision_count + 1
-        }  # type: ignore[return-value]
+            "revision_count": revision_count + 1,
+            "approved": False
+        }
     else:
-        return {"topic": topic, "draft_report": draft_report, "critic_feedback": feedback, "approved": True}  # type: ignore[return-value]
+        return {"topic": topic, "draft_report": draft_report, "critic_feedback": feedback, "approved": True}

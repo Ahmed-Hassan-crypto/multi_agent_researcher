@@ -17,7 +17,7 @@ class TestResearchRequest:
 
     def test_custom_max_results(self):
         """Test custom max_results passes validation."""
-        request = ResearchRequest(topic="AI", max_results=5)
+        request = ResearchRequest(topic="AI Research", max_results=5)
         assert request.max_results == 5
 
     def test_topic_too_short(self):
