@@ -25,10 +25,10 @@ def get_llm():
     """Get LLM - uses Groq for cloud, Ollama for local."""
     if USE_GROQ:
         return get_groq_model()
-    return get_llm()
+    return get_ollama_model()
 
 
-def get_llm():
+def get_ollama_model():
     """Get Ollama model (local, free)."""
     try:
         from langchain_ollama import ChatOllama

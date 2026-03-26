@@ -1,12 +1,11 @@
 import streamlit as st
 import os
 import time
-from typing import Any
 from dotenv import load_dotenv
 from langchain_core.runnables.config import RunnableConfig
 
 from agent.graph import master_graph
-from agent.nodes import get_llm, ensure_ollama
+from agent.nodes import ensure_ollama
 from utils.pdf_export import generate_pdf
 
 load_dotenv()

@@ -1,8 +1,6 @@
-import os
 from datetime import datetime
 import markdown
 from fpdf import FPDF
-import unicodedata
 
 class PDF(FPDF):
     def header(self):

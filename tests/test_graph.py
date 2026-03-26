@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from agent.state import AgentState
 from agent.graph import master_graph, should_continue_revisions

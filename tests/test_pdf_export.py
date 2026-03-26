@@ -1,7 +1,6 @@
 import unittest
 import os
 import tempfile
-from unittest.mock import Mock, patch
 from datetime import datetime
 
 from utils.pdf_export import generate_pdf, PDF, sanitize_text

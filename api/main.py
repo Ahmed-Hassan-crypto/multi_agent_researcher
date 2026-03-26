@@ -1,12 +1,11 @@
 """FastAPI application for the Multi-Agent Research Assistant."""
 
-import os
 import uuid
 import logging
 from typing import Dict
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -20,7 +19,7 @@ from schemas import (
     HealthResponse,
 )
 from agent.graph import master_graph
-from agent.exceptions import APIKeyError, SearchError, LLMError
+from agent.exceptions import APIKeyError
 from utils.pdf_export import generate_pdf
 from config import setup_logging
 
