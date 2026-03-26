@@ -21,7 +21,6 @@
    - Add Environment Variables:
      - `TAVILY_API_KEY` = your Tavily key
      - `GROQ_API_KEY` = your Groq key
-     - `USE_GROQ` = true
    - Click "Deploy"
 
 **Your app will be live at:** `https://your-app-name.onrender.com`

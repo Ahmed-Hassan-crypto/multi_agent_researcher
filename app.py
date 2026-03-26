@@ -5,22 +5,12 @@ from dotenv import load_dotenv
 from langchain_core.runnables.config import RunnableConfig
 
 from agent.graph import master_graph
-from agent.nodes import ensure_ollama
 from utils.pdf_export import generate_pdf
 
 load_dotenv()
 
 st.set_page_config(page_title="Multi-Agent Research Assistant", layout="wide")
 st.title("🤖 Multi-Agent Research Assistant")
-
-# Check Ollama only if not using Groq (cloud)
-if os.getenv("USE_GROQ", "false").lower() != "true":
-    with st.spinner("Checking Ollama..."):
-        try:
-            ensure_ollama()
-        except Exception as e:
-            st.error(f"Ollama error: {e}")
-            st.info("Please install Ollama from https://ollama.com and run 'ollama serve'")
 
 # Initialize session thread ID for LangGraph checkpointer memory
 if "thread_id" not in st.session_state:

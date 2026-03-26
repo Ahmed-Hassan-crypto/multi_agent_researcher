@@ -8,10 +8,6 @@ from .exceptions import APIKeyError, SearchError, LLMError
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-USE_GROQ = os.getenv("USE_GROQ", "false").lower() == "true"
-
 
 def get_tavily_client() -> TavilyClient:
     api_key = os.getenv("TAVILY_API_KEY")
@@ -22,49 +18,20 @@ def get_tavily_client() -> TavilyClient:
 
 
 def get_llm():
-    """Get LLM - uses Groq for cloud, Ollama for local."""
-    if USE_GROQ:
-        return get_groq_model()
-    return get_ollama_model()
-
-
-def get_ollama_model():
-    """Get Ollama model (local, free)."""
-    try:
-        from langchain_ollama import ChatOllama
-        return ChatOllama(
-            model=OLLAMA_MODEL,
-            temperature=0.0,
-            base_url=OLLAMA_BASE_URL
-        )
-    except Exception as e:
-        logger.error(f"Failed to initialize Ollama: {e}")
-        raise LLMError(f"Ollama not available: {e}. Install from https://ollama.com") from e
-
-
-def get_groq_model():
-    """Get Groq model (free tier, for cloud deployment)."""
+    """Get Groq LLM model."""
     try:
         from langchain_groq import ChatGroq
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise APIKeyError("GROQ_API_KEY not set. Get free key at https://console.groq.com")
         return ChatGroq(
-            model="llama-3.1-70b-versatile",
+            model="llama-3.3-70b-versatile",
             temperature=0.0,
             api_key=api_key
         )
     except Exception as e:
         logger.error(f"Failed to initialize Groq: {e}")
         raise LLMError(f"Groq initialization failed: {e}") from e
-
-
-def ensure_ollama():
-    """Ensure Ollama is running (for local use only)."""
-    try:
-        get_llm()
-    except Exception:
-        logger.warning("Ollama not available. Install from https://ollama.com")
 
 
 def research_agent(state: AgentState) -> AgentState:
@@ -182,22 +149,22 @@ def critic_agent(state: AgentState) -> AgentState:
     llm = get_llm()
     
     prompt = f"""You are a critical reviewer. Evaluate this research report on "{topic}" 
-    for quality, accuracy, and completeness.
+for quality, accuracy, and completeness.
 
-    Report:
-    {draft_report}
+Report:
+{draft_report}
 
-    Evaluate against these criteria:
-    1. Relevance - Does it address the topic comprehensively?
-    2. Structure - Is it well-organized with clear sections?
-    3. Clarity - Is it written clearly without jargon?
-    4. Citations - Are sources properly cited?
-    5. Length - Is it substantial (at least 1500 words)?
+Evaluate against these criteria:
+1. Relevance - Does it address the topic comprehensively?
+2. Structure - Is it well-organized with clear sections?
+3. Clarity - Is it written clearly without jargon?
+4. Citations - Are sources properly cited?
+5. Length - Is it substantial (at least 1500 words)?
 
-    Provide feedback in this format:
-    APPROVED: [true/false]
-    FEEDBACK: [Specific suggestions for improvement if not approved]
-    """
+Provide feedback in this format:
+APPROVED: [true/false]
+FEEDBACK: [Specific suggestions for improvement if not approved]
+"""
     
     response = llm.invoke(prompt)
     feedback_text = response.content if hasattr(response, "content") else str(response)
