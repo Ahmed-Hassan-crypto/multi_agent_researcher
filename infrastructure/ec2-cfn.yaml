@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Multi-Agent Research Assistant on EC2'
+
+Parameters:
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair
+  InstanceType:
+    Type: String
+    Default: t3.small
+    AllowedValues:
+      - t3.small
+      - t3.medium
+      - t3.large
+  SSHLocation:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: IP range for SSH access
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: ami-0c55b159cbfafe1f0  # Amazon Linux 2 - change for your region
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: multi-agent-researcher
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt update
+          apt install -y python3.11 python3-pip git nginx
+          
+          cd /home/ec2-user
+          git clone https://github.com/yourusername/multi_agent_researcher.git
+          cd multi_agent_researcher
+          
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          
+          # Create systemd service
+          cat > /etc/systemd/system/researcher.service <<EOF
+          [Unit]
+          Description=Multi-Agent Research Assistant
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=ec2-user
+          WorkingDirectory=/home/ec2-user/multi_agent_researcher
+          ExecStart=/home/ec2-user/multi_agent_researcher/venv/bin/streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+          
+          systemctl daemon-reload
+          systemctl enable researcher
+          systemctl start researcher
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH, HTTP, and Streamlit
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8501
+          ToPort: 8501
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  InstanceID:
+    Description: Instance ID
+    Value: !Ref EC2Instance
+  PublicDNS:
+    Description: Public DNS Name
+    Value: !GetAtt EC2Instance.PublicDnsName
+  PublicIP:
+    Description: Public IP Address
+    Value: !GetAtt EC2Instance.PublicIp
